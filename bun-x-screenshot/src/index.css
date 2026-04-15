@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  /* X.com dark palette */
+  --color-x-bg: #000000;
+  --color-x-text: #e7e9ea;
+  --color-x-muted: #71767b;
+  --color-x-border: #2f3336;
+  --color-x-link: #1d9bf0;
+
+  /* X.com light palette */
+  --color-xl-bg: #ffffff;
+  --color-xl-text: #0f1419;
+  --color-xl-muted: #536471;
+  --color-xl-border: #eff3f4;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}

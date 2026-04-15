@@ -3,10 +3,9 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "bun-webview-screenshotter",
+      "name": "tweet-scraper",
       "devDependencies": {
-        "@types/bun": "^1.3.12",
-        "@types/node": "^25.6.0",
+        "@types/bun": "latest",
       },
     },
   },

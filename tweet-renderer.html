@@ -4,785 +4,215 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Tweet Renderer</title>
-        <style>
-            /* ===== RESET ===== */
-            *,
-            *::before,
-            *::after {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            :root {
-                /* Dark theme (default) */
-                --bg: #000000;
-                --text: #e7e9ea;
-                --muted: #71767b;
-                --border: #2f3336;
-                --link: #1d9bf0;
-                --hover-bg: rgba(231, 233, 234, 0.03);
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <style type="text/tailwindcss">
+            @theme {
+                --color-x-bg: #000000;
+                --color-x-text: #e7e9ea;
+                --color-x-muted: #71767b;
+                --color-x-border: #2f3336;
+                --color-x-link: #1d9bf0;
+                --color-x-hover: rgba(231, 233, 234, 0.03);
             }
 
             html.light {
-                --bg: #ffffff;
-                --text: #0f1419;
-                --muted: #536471;
-                --border: #eff3f4;
-                --link: #1d9bf0;
-                --hover-bg: rgba(0, 0, 0, 0.03);
+                --color-x-bg: #ffffff;
+                --color-x-text: #0f1419;
+                --color-x-muted: #536471;
+                --color-x-border: #eff3f4;
+                --color-x-link: #1d9bf0;
+                --color-x-hover: rgba(0, 0, 0, 0.03);
             }
 
-            html,
-            body {
-                background: var(--bg);
-                color: var(--text);
-                font-family:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    Helvetica, Arial, sans-serif;
-                font-size: 15px;
-                line-height: 20px;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-            }
-
-            body {
-                width: 600px;
-            }
-
-            /* ===== TWEET CONTAINER ===== */
-            .tweet {
-                width: 600px;
-                padding: 12px 16px 0 12px;
-                border-bottom: 1px solid var(--border);
-            }
-
-            /* ===== HEADER ROW ===== */
-            .tweet-header {
-                display: flex;
-                align-items: flex-start;
-                gap: 12px;
-                margin-bottom: 4px;
-            }
-
-            .avatar {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                flex-shrink: 0;
-                object-fit: cover;
-            }
-
-            .header-right {
-                flex: 1;
-                min-width: 0;
-                display: flex;
-                align-items: flex-start;
-                justify-content: space-between;
-            }
-
-            .name-group {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0;
-                min-width: 0;
-                flex: 1;
-            }
-
-            .name-line {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-                min-width: 0;
-                max-width: 100%;
-            }
-
-            .display-name {
-                font-weight: 700;
-                font-size: 15px;
-                line-height: 20px;
-                color: var(--text);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                min-width: 0;
-            }
-
-            .verified-badge {
-                flex-shrink: 0;
-                margin-left: 2px;
-                display: inline-flex;
-                align-items: center;
-            }
-
-            .handle-row {
-                color: var(--muted);
-                font-size: 15px;
-                line-height: 20px;
-                white-space: nowrap;
-            }
-
-            .header-actions {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                flex-shrink: 0;
-                margin-left: 12px;
-            }
-
-            .subscribe-btn {
-                font-family: inherit;
-                font-weight: 700;
-                font-size: 14px;
-                line-height: 16px;
-                background: var(--text);
-                color: var(--bg);
-                border: none;
-                border-radius: 9999px;
-                padding: 6px 16px;
-                cursor: pointer;
-                white-space: nowrap;
-                min-height: 32px;
-            }
-
-            .icon-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 34px;
-                height: 34px;
-                border-radius: 50%;
-                color: var(--muted);
-                cursor: pointer;
-                transition: background 0.15s;
-            }
-
-            .icon-btn:hover {
-                background: var(--hover-bg);
-            }
-
-            /* ===== TWEET BODY ===== */
-            .tweet-body {
-                padding-left: 0;
-            }
-
-            .tweet-text {
-                margin-top: 12px;
-                margin-left: 0 !important;
-                padding-left: 0 !important;
-                font-size: 17px;
-                line-height: 24px;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                color: var(--text);
-            }
-
-            .tweet-text a,
-            .tweet-text .hashtag,
-            .tweet-text .mention {
-                color: var(--link);
-                text-decoration: none;
-            }
-
-            .more-link {
-                display: block;
-                color: var(--link);
-                margin-top: 4px;
-                font-size: 17px;
-                line-height: 24px;
-            }
-
-            /* ===== QUOTE TWEET ===== */
-            .quote-tweet {
-                margin-top: 12px;
-                border: 1px solid var(--border);
-                border-radius: 16px;
-                overflow: hidden;
-                cursor: pointer;
-            }
-
-            .quote-tweet:hover {
-                background: var(--hover-bg);
-            }
-
-            .quote-content {
-                padding: 12px;
-            }
-
-            .quote-header {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                margin-bottom: 4px;
-                min-width: 0;
-            }
-
-            .quote-avatar {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                flex-shrink: 0;
-                object-fit: cover;
-            }
-
-            .quote-name {
-                font-weight: 700;
-                font-size: 13px;
-                line-height: 16px;
-                color: var(--text);
-                white-space: nowrap;
-            }
-
-            .quote-handle {
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 16px;
-                white-space: nowrap;
-            }
-
-            .quote-date {
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 16px;
-                white-space: nowrap;
-            }
-
-            .quote-text {
-                font-size: 15px;
-                line-height: 20px;
-                color: var(--text);
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            }
-
-            .quote-media {
-                width: 100%;
-                display: block;
-                border-top: 1px solid var(--border);
-            }
-
-            .media-grid {
-                margin-top: 12px;
-                border-radius: 16px;
-                overflow: hidden;
-                border: 1px solid var(--border);
-                display: grid;
-                gap: 2px;
-                background: var(--border);
-            }
-
-            .quote-media .media-grid {
-                margin-top: 0;
-                border: 0;
-                border-radius: 0;
-            }
-
-            .media-grid.count-1 {
-                grid-template-columns: 1fr;
-            }
-
-            .media-grid.count-2 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .media-grid.count-3,
-            .media-grid.count-4 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .media-cell {
-                min-width: 0;
-                min-height: 0;
-                background: var(--bg);
-            }
-
-            .media-grid.count-2 .media-cell,
-            .media-grid.count-3 .media-cell,
-            .media-grid.count-4 .media-cell {
-                aspect-ratio: 1 / 1;
-            }
-
+            /* Media grid layouts - these need custom CSS since Tailwind doesn't cover grid span logic */
             .media-grid.count-3 .media-cell:first-child {
                 grid-row: span 2;
                 aspect-ratio: auto;
             }
-
-            .media-grid img {
-                width: 100%;
-                height: 100%;
-                display: block;
-                object-fit: cover;
-            }
-
-            /* ===== TIMESTAMP / VIEWS ===== */
-            .tweet-meta {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                padding: 12px 0;
-                color: var(--muted);
-                font-size: 15px;
-                line-height: 20px;
-                flex-wrap: wrap;
-            }
-
-            .tweet-meta .dot {
-                margin: 0 2px;
-            }
-
-            .view-count {
-                font-weight: 700;
-                color: var(--text);
-            }
-
-            /* ===== ACTION BAR ===== */
-            .action-bar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-top: 1px solid var(--border);
-                padding: 4px 0;
-                margin: 0 -4px;
-            }
-
-            .action-item {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 16px;
-                padding: 8px 8px;
-                border-radius: 9999px;
-                cursor: pointer;
-                transition: color 0.15s;
-            }
-
-            .action-item.reply:hover {
-                color: #1d9bf0;
-            }
-            .action-item.retweet:hover {
-                color: #00ba7c;
-            }
-            .action-item.like:hover {
-                color: #f91880;
-            }
-            .action-item.bookmark:hover {
-                color: #1d9bf0;
-            }
-            .action-item.share:hover {
-                color: #1d9bf0;
-            }
-
-            .action-item svg {
-                flex-shrink: 0;
-            }
-
-            /* ===== SEPARATOR (Relevant / View quotes) ===== */
-            .tweet-separator {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 12px 0;
-                border-top: 1px solid var(--border);
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 16px;
-            }
-
-            .relevant-label {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-                color: var(--text);
-                font-weight: 700;
-                font-size: 13px;
-                cursor: pointer;
-            }
-
-            .view-quotes {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-                color: var(--link);
-                font-size: 13px;
-                cursor: pointer;
-            }
-
-            /* ===== EMOJI FIX ===== */
-            .emoji {
-                font-family:
-                    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-                    sans-serif;
-            }
-
-            /* ===== HIDE TOGGLE BTN DURING SCREENSHOT ===== */
-            .toggle-theme-btn {
-                position: fixed;
-                top: 8px;
-                right: 8px;
-                z-index: 9999;
-                background: var(--text);
-                color: var(--bg);
-                border: none;
-                border-radius: 9999px;
-                padding: 6px 14px;
-                font-size: 13px;
-                font-weight: 600;
-                cursor: pointer;
-                font-family: inherit;
-            }
-
-            body.screenshot-mode .toggle-theme-btn {
-                display: none !important;
-            }
         </style>
     </head>
-    <body>
-        <div class="tweet" id="tweet-root">
-            <!-- Populated by JS -->
-        </div>
+
+    <body
+        class="bg-x-bg text-x-text font-[system-ui,-apple-system,sans-serif] text-[15px] leading-5 antialiased m-0 p-0 overflow-hidden w-150"
+    >
+        <div
+            id="tweet-root"
+            class="w-150 pt-3 px-4 pb-0 border-b border-x-border"
+        ></div>
 
         <script>
-            // ===== THEME TOGGLE =====
-            function toggleTheme() {
-                document.documentElement.classList.toggle("light");
-            }
-
-            // Check URL param for theme
-            const params = new URLSearchParams(window.location.search);
-            if (window.__THEME__ === "light" || params.get("theme") === "light") {
+            // ===== THEME =====
+            if (window.__THEME__ === "light")
                 document.documentElement.classList.add("light");
-            }
-            if (params.get("screenshot") === "1") {
-                document.body.classList.add("screenshot-mode");
+
+            // ===== SVG ICONS =====
+            const SVG = {
+                verified: `<svg width="18" height="18" viewBox="0 0 22 22" aria-label="Verified" style="vertical-align:-2px"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.855-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.607-.274 1.264-.144 1.897.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1d9bf0"/></svg>`,
+                comment: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/></svg>`,
+                retweet: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>`,
+                like: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>`,
+                bookmark: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>`,
+                share: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>`,
+                more: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>`,
+            };
+
+            // ===== HELPERS =====
+            function esc(s) {
+                return s
+                    ? s
+                          .replace(/&/g, "&amp;")
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;")
+                          .replace(/"/g, "&quot;")
+                    : "";
             }
 
-            // ===== FORMAT HELPERS =====
-            function formatCount(n) {
+            function fmtCount(n) {
                 if (typeof n !== "number") return "";
                 if (n < 1000) return String(n);
                 if (n < 10000)
                     return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
-                if (n < 1000000) return Math.round(n / 1000) + "K";
-                if (n < 10000000)
-                    return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-                if (n < 1000000000) return Math.round(n / 1000000) + "M";
-                return (n / 1000000000).toFixed(1).replace(/\.0$/, "") + "B";
+                if (n < 1e6) return Math.round(n / 1000) + "K";
+                if (n < 1e7)
+                    return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+                if (n < 1e9) return Math.round(n / 1e6) + "M";
+                return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
             }
 
-            function formatViews(n) {
-                if (typeof n !== "number") return "";
-                if (n < 100000) return n.toLocaleString();
-                return formatCount(n);
+            function fmtViews(n) {
+                return typeof n === "number" && n < 100000
+                    ? n.toLocaleString()
+                    : fmtCount(n);
             }
 
-            // ===== SVG ICONS (exact X.com paths) =====
-            const SVG = {
-                verified: `<svg width="18" height="18" viewBox="0 0 22 22" aria-label="Verified account" style="vertical-align: -2px;"><g><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.855-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.607-.274 1.264-.144 1.897.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1d9bf0"></path></g></svg>`,
+            function fmtText(text) {
+                if (!text) return "";
+                let s = esc(text);
+                s = s.replace(
+                    /(https?:\/\/[^\s]+)/g,
+                    '<a href="$1" class="text-x-link no-underline">$1</a>',
+                );
+                s = s.replace(
+                    /@(\w+)/g,
+                    '<span class="text-x-link">@$1</span>',
+                );
+                s = s.replace(
+                    /#(\w+)/g,
+                    '<span class="text-x-link">#$1</span>',
+                );
+                return s;
+            }
 
-                comment: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"></path></svg>`,
+            function mediaHtml(media, wrapClass) {
+                if (!media || !media.length) return "";
+                const n = Math.min(media.length, 4);
+                let h = `<div class="${wrapClass}"><div class="media-grid count-${n} mt-3 rounded-2xl overflow-hidden border border-x-border grid gap-0.5 bg-x-border ${n > 1 ? "grid-cols-2" : ""}">`;
+                media.slice(0, 4).forEach((src, i) => {
+                    const aspect = n > 1 ? "aspect-square" : "";
+                    h += `<div class="media-cell min-w-0 min-h-0 bg-x-bg ${aspect}"><img src="${src}" alt="" class="w-full h-full block object-cover" /></div>`;
+                });
+                return h + "</div></div>";
+            }
 
-                retweet: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"></path></svg>`,
+            function action(type, icon, count) {
+                const hoverColor = {
+                    reply: "hover:text-[#1d9bf0]",
+                    retweet: "hover:text-[#00ba7c]",
+                    like: "hover:text-[#f91880]",
+                    bookmark: "hover:text-[#1d9bf0]",
+                    share: "hover:text-[#1d9bf0]",
+                }[type];
+                const label = typeof count === "number" ? fmtCount(count) : "";
+                return `<div class="flex items-center gap-1 text-x-muted text-[13px] leading-4 px-2 py-2 rounded-full cursor-pointer transition-colors ${hoverColor}">${icon}${label ? `<span>${label}</span>` : ""}</div>`;
+            }
 
-                like: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"></path></svg>`,
-
-                bookmark: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"></path></svg>`,
-
-                share: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"></path></svg>`,
-
-                more: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>`,
-
-                chevronDown: `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path></svg>`,
-
-                chevronRight: `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.96 3.543l1.42-1.414L17.41 12l-7.05 7.043-1.42-1.414L14.59 12 8.96 3.543z"></path></svg>`,
-
-                views: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18.75 21V8.5h2V21h-2zM13.75 21v-9h2v9h-2zM3.75 21v-4h2v4h-2z"></path></svg>`,
-            };
-
-            // ===== RENDER FUNCTION =====
-            function renderTweet(data) {
+            // ===== RENDER =====
+            function renderTweet(d) {
                 const root = document.getElementById("tweet-root");
+                let h = "";
 
-                // Build HTML
-                let html = "";
+                // Header
+                h += `<div class="flex items-start gap-3 mb-1">`;
+                h += `<img class="w-10 h-10 rounded-full shrink-0 object-cover" src="${d.avatar}" alt="" />`;
+                h += `<div class="flex-1 min-w-0 flex items-start justify-between">`;
+                h += `<div class="flex flex-col min-w-0 flex-1">`;
+                h += `<div class="flex items-center gap-0.5 min-w-0 max-w-full"><span class="font-bold text-[15px] leading-5 text-x-text truncate">${esc(d.name)}</span>${d.verified ? `<span class="shrink-0 ml-0.5 inline-flex items-center">${SVG.verified}</span>` : ""}</div>`;
+                h += `<div class="text-x-muted text-[15px] leading-5 whitespace-nowrap">${esc(d.handle)}</div>`;
+                h += `</div>`;
+                h += `<div class="flex items-center gap-1 shrink-0 ml-3">`;
+                if (d.showSubscribe)
+                    h += `<button class="font-bold text-sm leading-4 bg-x-text text-x-bg border-none rounded-full px-4 py-1.5 cursor-pointer whitespace-nowrap min-h-8 font-[inherit]">Subscribe</button>`;
+                h += `<div class="flex items-center justify-center w-[34px] h-[34px] rounded-full text-x-muted cursor-pointer hover:bg-x-hover transition-colors">${SVG.more}</div>`;
+                h += `</div></div></div>`;
 
-                // --- HEADER ---
-                html += `<div class="tweet-header">`;
-                html += `<img class="avatar" src="${data.avatar}" alt="" />`;
-                html += `<div class="header-right">`;
-                html += `<div class="name-group">`;
-                html += `<div class="name-line">`;
-                html += `<span class="display-name">${escapeHtml(data.name)}</span>`;
-                if (data.verified)
-                    html += `<span class="verified-badge">${SVG.verified}</span>`;
-                html += `</div>`;
-                html += `<div class="handle-row">${escapeHtml(data.handle)}</div>`;
-                html += `</div>`; // name-group
+                // Body - tweet text with line clamping via CSS
+                const rawEncoded = encodeURIComponent(d.text || "");
+                h += `<div class="mt-3 text-[17px] leading-6 whitespace-pre-wrap break-words text-x-text line-clamp-6" id="tweet-text">${fmtText(d.text)}</div>`;
 
-                html += `<div class="header-actions">`;
-                if (data.showSubscribe) {
-                    html += `<button class="subscribe-btn">Subscribe</button>`;
-                }
-                html += `<div class="icon-btn">${SVG.more}</div>`;
-                html += `</div>`; // header-actions
-                html += `</div>`; // header-right
-                html += `</div>`; // tweet-header
+                // Show more (hidden by default, shown via JS if clamped)
+                h += `<a id="show-more" class="hidden text-x-link text-[17px] leading-6 mt-1 cursor-pointer">Show more</a>`;
 
-                // --- BODY ---
-                html += `<div class="tweet-body">`;
-
-                // Tweet text
-                html += `<div class="tweet-text" data-raw="${encodeURIComponent(data.text || "")}" data-max-height="144"></div>`;
-
-                // Media (standalone, not in quote)
-                if (data.media && data.media.length > 0) {
-                    html += renderMedia(data.media, "tweet-media");
-                }
+                // Media
+                if (d.media && d.media.length)
+                    h += mediaHtml(d.media, "tweet-media");
 
                 // Quote tweet
-                if (data.quote) {
-                    html += renderQuoteTweet(data.quote);
+                if (d.quote) {
+                    const q = d.quote;
+                    h += `<div class="mt-3 border border-x-border rounded-2xl overflow-hidden cursor-pointer hover:bg-x-hover">`;
+                    h += `<div class="p-3">`;
+                    h += `<div class="flex items-center gap-1 mb-1 min-w-0">`;
+                    if (q.avatar)
+                        h += `<img class="w-5 h-5 rounded-full shrink-0 object-cover" src="${q.avatar}" alt="" />`;
+                    h += `<span class="font-bold text-[13px] leading-4 text-x-text whitespace-nowrap">${esc(q.name)}</span>`;
+                    if (q.verified)
+                        h += `<span class="shrink-0 inline-flex items-center">${SVG.verified}</span>`;
+                    h += `<span class="text-x-muted text-[13px] leading-4 whitespace-nowrap">${esc(q.handle)}</span>`;
+                    if (q.date)
+                        h += `<span class="text-x-muted text-[13px] leading-4 whitespace-nowrap">· ${esc(q.date)}</span>`;
+                    h += `</div>`;
+                    h += `<div class="text-[15px] leading-5 text-x-text whitespace-pre-wrap break-words">${fmtText(q.text)}</div>`;
+                    h += `</div>`;
+                    if (q.media && q.media.length) {
+                        const n = Math.min(q.media.length, 4);
+                        h += `<div class="border-t border-x-border"><div class="media-grid count-${n} grid gap-0.5 bg-x-border ${n > 1 ? "grid-cols-2" : ""}">`;
+                        q.media.slice(0, 4).forEach((src) => {
+                            h += `<div class="media-cell min-w-0 min-h-0 bg-x-bg ${n > 1 ? "aspect-square" : ""}"><img src="${src}" alt="" class="w-full h-full block object-cover"/></div>`;
+                        });
+                        h += `</div></div>`;
+                    }
+                    h += `</div>`;
                 }
 
-                // Timestamp & Views
-                html += `<div class="tweet-meta">`;
-                html += `<span>${escapeHtml(data.time)}</span>`;
-                html += `<span class="dot">·</span>`;
-                html += `<span>${escapeHtml(data.fullDate)}</span>`;
-                html += `<span class="dot">·</span>`;
-                html += `<span class="view-count">${formatViews(data.views)}</span>`;
-                html += `<span> Views</span>`;
-                html += `</div>`;
+                // Meta (time · date · views)
+                h += `<div class="flex items-center gap-1 py-3 text-x-muted text-[15px] leading-5 flex-wrap">`;
+                h += `<span>${esc(d.time)}</span><span class="mx-0.5">·</span><span>${esc(d.fullDate)}</span><span class="mx-0.5">·</span>`;
+                h += `<span class="font-bold text-x-text">${fmtViews(d.views)}</span><span> Views</span>`;
+                h += `</div>`;
 
                 // Action bar
-                html += `<div class="action-bar">`;
-                html += actionItem("reply", SVG.comment, data.replies);
-                html += actionItem("retweet", SVG.retweet, data.retweets);
-                html += actionItem("like", SVG.like, data.likes);
-                html += actionItem("bookmark", SVG.bookmark, data.bookmarks);
-                html += actionItem("share", SVG.share, null);
-                html += `</div>`;
+                h += `<div class="flex items-center justify-between border-t border-x-border py-1 -mx-1">`;
+                h += action("reply", SVG.comment, d.replies);
+                h += action("retweet", SVG.retweet, d.retweets);
+                h += action("like", SVG.like, d.likes);
+                h += action("bookmark", SVG.bookmark, d.bookmarks);
+                h += action("share", SVG.share, null);
+                h += `</div>`;
 
-                html += `</div>`; // tweet-body
+                root.innerHTML = h;
 
-                root.innerHTML = html;
-            }
-
-            function renderQuoteTweet(q) {
-                let html = `<div class="quote-tweet">`;
-                html += `<div class="quote-content">`;
-
-                // Quote header
-                html += `<div class="quote-header">`;
-                if (q.avatar) {
-                    html += `<img class="quote-avatar" src="${q.avatar}" alt="" />`;
-                }
-                html += `<span class="quote-name">${escapeHtml(q.name)}</span>`;
-                if (q.verified)
-                    html += `<span class="verified-badge">${SVG.verified}</span>`;
-                html += `<span class="quote-handle">${escapeHtml(q.handle)}</span>`;
-                if (q.date) {
-                    html += `<span class="quote-date">· ${escapeHtml(q.date)}</span>`;
-                }
-                html += `</div>`;
-
-                // Quote text
-                html += `<div class="quote-text">${formatTweetText(q.text)}</div>`;
-                html += `</div>`; // quote-content
-
-                // Quote media - outside padding area, flush to bottom
-                if (q.media && q.media.length > 0) {
-                    html += renderMedia(q.media, "quote-media");
-                }
-
-                html += `</div>`;
-                return html;
-            }
-
-            function actionItem(type, icon, count) {
-                const countStr =
-                    typeof count === "number" ? formatCount(count) : "";
-                return `<div class="action-item ${type}">${icon}${countStr ? `<span>${countStr}</span>` : ""}</div>`;
-            }
-
-            function escapeHtml(str) {
-                if (!str) return "";
-                return str
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;");
-            }
-
-            function formatTweetText(text) {
-                if (!text) return "";
-                // Escape HTML first
-                let escaped = escapeHtml(text);
-                // Bold emoji warning markers like ‼️
-                // Convert URLs to links
-                escaped = escaped.replace(
-                    /(https?:\/\/[^\s]+)/g,
-                    '<a href="$1" style="color:var(--link)">$1</a>',
-                );
-                // Convert @mentions
-                escaped = escaped.replace(
-                    /@(\w+)/g,
-                    '<span class="mention">@$1</span>',
-                );
-                // Convert #hashtags
-                escaped = escaped.replace(
-                    /#(\w+)/g,
-                    '<span class="hashtag">#$1</span>',
-                );
-                return escaped;
-            }
-
-            function renderMedia(media, wrapperClass) {
-                if (!media || media.length === 0) return "";
-                const count = Math.min(media.length, 4);
-                let html = `<div class="${wrapperClass}"><div class="media-grid count-${count}">`;
-                media.slice(0, 4).forEach((src, index) => {
-                    html += `<div class="media-cell media-cell-${index + 1}"><img src="${src}" alt="" /></div>`;
-                });
-                html += `</div></div>`;
-                return html;
-            }
-
-            function clampTextElement(el) {
-                if (!el) return;
-
-                const raw = decodeURIComponent(el.dataset.raw || "");
-                const maxHeight = Number(el.dataset.maxHeight || 0);
-                const width = el.clientWidth;
-
-                if (!raw || !maxHeight || !width) {
-                    el.innerHTML = formatTweetText(raw);
-                    return;
-                }
-
-                const measure = document.createElement("div");
-                measure.className = el.className;
-                measure.style.position = "fixed";
-                measure.style.left = "-99999px";
-                measure.style.top = "0";
-                measure.style.visibility = "hidden";
-                measure.style.pointerEvents = "none";
-                measure.style.width = `${width}px`;
-                measure.style.margin = "0";
-                document.body.appendChild(measure);
-
-                const renderCandidate = (value, truncated) => {
-                    const suffix = truncated
-                        ? `<span class="more-link">Show more</span>`
-                        : "";
-                    return formatTweetText(value) + suffix;
-                };
-
-                measure.innerHTML = renderCandidate(raw, false);
-                if (measure.scrollHeight <= maxHeight) {
-                    el.innerHTML = measure.innerHTML;
-                    measure.remove();
-                    return;
-                }
-
-                let low = 0;
-                let high = raw.length;
-                let best = "";
-
-                while (low <= high) {
-                    const mid = Math.floor((low + high) / 2);
-                    const candidate = raw
-                        .slice(0, mid)
-                        .replace(/\s+\S*$/, "")
-                        .trim();
-                    measure.innerHTML = renderCandidate(candidate, true);
-                    if (measure.scrollHeight <= maxHeight) {
-                        best = candidate;
-                        low = mid + 1;
-                    } else {
-                        high = mid - 1;
+                // Show "Show more" link if text is clamped
+                requestAnimationFrame(() => {
+                    const el = document.getElementById("tweet-text");
+                    const link = document.getElementById("show-more");
+                    if (el && link && el.scrollHeight > el.clientHeight) {
+                        link.classList.remove("hidden");
                     }
-                }
-
-                el.innerHTML = renderCandidate(best || raw.slice(0, 1), true);
-                measure.remove();
+                });
             }
-
-            // ===== DEFAULT DEMO DATA =====
-            const DEFAULT_TWEET = {
-                // Author
-                name: "sphinx",
-                handle: "@protosphinx",
-                verified: true,
-                avatar: "https://pbs.twimg.com/profile_images/example/avatar_bigger.jpg",
-                showSubscribe: true,
-
-                // Content
-                text: `back in the 90s, Microsoft would interview competitors' candidates to strip-mine them for product and strategy info, then not hire them.
-
-that cutthroat behavior sat alongside casual NDA skirting, aggressive poaching, and hardball sales. it was considered smart.
-
-US culture only really pivoted to 'values and virtue' for roughly a decade around the Obama years. outside that window, everything was fair game.
-
-the Trump era is just a reversion to the mean. the only surprise is that people are surprised.`,
-
-                // Quote tweet
-                quote: {
-                    name: "International Cyber Digest",
-                    handle: "@IntCyberDigest",
-                    verified: true,
-                    avatar: "https://pbs.twimg.com/profile_images/1700000000000000000/sample_bigger.jpg",
-                    date: "Nov 29, 2025",
-                    text: `‼️ This is a story about a dev who got a job interview at xAI, where they stripped him of his knowledge about how he used the user X API to create two impressive projects, hence the job interview.
-
-After they got what they wanted, X sent a cease and desist, and told him he wasn't hired.`,
-                    media: ["https://pbs.twimg.com/media/example_cease_desist.jpg"],
-                },
-
-                // Metadata
-                time: "10:06 AM",
-                fullDate: "Nov 29, 2025",
-                date: "Nov 29, 2025",
-                views: 774200,
-
-                // Engagement
-                replies: 46,
-                retweets: 583,
-                likes: 6000,
-                bookmarks: 1500,
-            };
 
             // ===== INIT =====
-            // Load tweet data from window.__TWEET_DATA__ (injected by automation)
-            // or from URL params, or use default demo
-            const tweetData = window.__TWEET_DATA__ || DEFAULT_TWEET;
-            renderTweet(tweetData);
-            clampTextElement(document.querySelector(".tweet-text"));
-
-            // Expose for automation
-            window.renderTweet = function (data) {
-                renderTweet(data);
-                clampTextElement(document.querySelector(".tweet-text"));
-            };
-            window.setTheme = function (theme) {
-                if (theme === "light") {
-                    document.documentElement.classList.add("light");
-                } else {
-                    document.documentElement.classList.remove("light");
-                }
-            };
-
-            // Expose measurement for Bun.WebView screenshot automation
-            window.measureTweet = function () {
-                const el = document.getElementById("tweet-root");
-                if (!el) return "598,600";
-                return el.offsetWidth + "," + el.offsetHeight;
-            };
+            renderTweet(window.__TWEET_DATA__ || {});
         </script>
     </body>
 </html>
