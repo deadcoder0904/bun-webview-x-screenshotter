@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "bun run build:renderer && bun run build:extraction && bun run index.ts",
+    "build:extraction": "bun build src/webview/extraction-script.ts --minify --outfile=dist/extraction-script.js",
+    "build:renderer": "tsc -b && vp build",
+    "build": "bun run build:renderer",
     "dev": "vp dev",
     "preview": "vp preview",
-    "build": "tsc -b && vp build",
-    "build:renderer": "tsc -b && vp build",
-    "screenshot": "bun run build:renderer && bun run index.ts",
-    "test": "bun test",
+    "screenshot": "bun run start",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "check": "vp check"

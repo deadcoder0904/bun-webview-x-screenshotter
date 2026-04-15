@@ -1,36 +1,43 @@
 /// <reference types="vite/client" />
 
 interface QuoteData {
-  name: string;
-  handle: string;
+  name: string | null;
+  handle: string | null;
   verified: boolean;
   avatar: string;
-  date: string;
-  text: string;
+  date: string | null;
+  text: string | null;
   media: string[];
 }
 
-interface TweetData {
-  name: string;
-  handle: string;
-  verified: boolean;
-  avatar: string;
-  showSubscribe: boolean;
-  showMore?: boolean;
-  text: string;
-  media: string[];
-  quote: QuoteData | null;
-  time: string;
-  fullDate: string;
-  date: string;
-  views: number;
+interface TweetStats {
   replies: number;
   retweets: number;
   likes: number;
-  bookmarks: number;
+  views: number;
+}
+
+interface TweetData {
+  name: string | null;
+  handle: string | null;
+  verified: boolean;
+  avatar: string;
+  showSubscribe: boolean;
+  showMore: boolean;
+  text: string | null;
+  media: string[];
+  quote: QuoteData | null;
+  time: string | null;
+  date: string | null;
+  stats: TweetStats;
+}
+
+interface ScraperOutput {
+  main: TweetData | null;
+  replies: TweetData[];
 }
 
 interface Window {
-  __TWEET_DATA__?: TweetData;
+  __TWEET_DATA__?: TweetData | ScraperOutput;
   __THEME__?: string;
 }

@@ -1,5 +1,5 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { clampTweetText, SHOW_MORE_LABEL } from "./tweetText";
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { clampTweetText, SHOW_MORE_LABEL } from './tweetText'
 
 // ===== SVG ICONS =====
 const SVG = {
@@ -9,7 +9,7 @@ const SVG = {
       height="18"
       viewBox="0 0 22 22"
       aria-label="Verified"
-      style={{ verticalAlign: "-2px" }}
+      style={{ verticalAlign: '-2px' }}
     >
       <path
         d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.855-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.607-.274 1.264-.144 1.897.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"
@@ -47,75 +47,79 @@ const SVG = {
       <path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
     </svg>
   ),
-};
+}
 
 // ===== HELPERS =====
 function fmtCount(n: number | undefined) {
-  if (typeof n !== "number") return "";
-  if (n < 1000) return String(n);
-  if (n < 10000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K";
-  if (n < 1e6) return Math.round(n / 1000) + "K";
-  if (n < 1e7) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n < 1e9) return Math.round(n / 1e6) + "M";
-  return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+  if (typeof n !== 'number') return ''
+  if (n < 1000) return String(n)
+  if (n < 10000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
+  if (n < 1e6) return Math.round(n / 1000) + 'K'
+  if (n < 1e7) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M'
+  if (n < 1e9) return Math.round(n / 1e6) + 'M'
+  return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B'
 }
 
 function fmtViews(n: number | undefined) {
-  return typeof n === "number" && n < 100000 ? n.toLocaleString() : fmtCount(n);
+  return fmtCount(n)
 }
 
 function parseText(text: string | undefined): React.ReactNode[] {
-  if (!text) return [];
+  if (!text) return []
 
   // Basic regex matching for links, mentions, and hashtags
-  const parts = text.split(/(https?:\/\/[^\s]+|@\w+|#\w+)/g);
+  const parts = text.split(/(https?:\/\/[^\s]+|@\w+|#\w+)/g)
   return parts.map((part, i) => {
-    if (part.startsWith("http")) {
+    if (part.startsWith('http')) {
       return (
         <a key={i} href={part} className="text-x-link no-underline">
           {part}
         </a>
-      );
+      )
     }
-    if (part.startsWith("@")) {
+    if (part.startsWith('@')) {
       return (
         <span key={i} className="text-x-link">
           {part}
         </span>
-      );
+      )
     }
-    if (part.startsWith("#")) {
+    if (part.startsWith('#')) {
       return (
         <span key={i} className="text-x-link">
           {part}
         </span>
-      );
+      )
     }
-    return <React.Fragment key={i}>{part}</React.Fragment>;
-  });
+    return <React.Fragment key={i}>{part}</React.Fragment>
+  })
 }
 
 function MediaGrid({ media }: { media: string[] }) {
-  if (!media || !media.length) return null;
-  const n = Math.min(media.length, 4);
-  const isMulti = n > 1;
+  if (!media || !media.length) return null
+  const n = Math.min(media.length, 4)
+  const isMulti = n > 1
 
   return (
     <div className="tweet-media">
       <div
-        className={`media-grid count-${n} mt-3 rounded-2xl overflow-hidden border border-x-border grid gap-0.5 bg-x-border ${isMulti ? "grid-cols-2" : ""}`}
+        className={`media-grid count-${n} mt-3 rounded-2xl overflow-hidden border border-x-border bg-x-border max-w-full ${isMulti ? 'grid grid-cols-2 max-h-80' : 'max-h-96'}`}
       >
         {media.slice(0, 4).map((src, i) => (
           <div
             key={i}
-            className={`media-cell min-w-0 min-h-0 bg-x-bg ${isMulti ? "aspect-square" : ""}`}
+            className={`media-cell min-w-0 min-h-0 bg-x-bg ${isMulti ? 'aspect-square' : ''}`}
           >
-            <img src={src} alt="" className="w-full h-full block object-cover" />
+            <img
+              src={src}
+              alt=""
+              className="w-full h-full block object-cover"
+            />
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 function ActionItem({
@@ -123,155 +127,164 @@ function ActionItem({
   icon,
   count,
 }: {
-  type: string;
-  icon: React.ReactNode;
-  count: number | null;
+  type: string
+  icon: React.ReactNode
+  count: number | null
 }) {
   const hoverColors: Record<string, string> = {
-    reply: "hover:text-[#1d9bf0]",
-    retweet: "hover:text-[#00ba7c]",
-    like: "hover:text-[#f91880]",
-    bookmark: "hover:text-[#1d9bf0]",
-    share: "hover:text-[#1d9bf0]",
-  };
-  const label = count !== null ? fmtCount(count) : "";
+    reply: 'hover:text-[#1d9bf0]',
+    retweet: 'hover:text-[#00ba7c]',
+    like: 'hover:text-[#f91880]',
+    bookmark: 'hover:text-[#1d9bf0]',
+    share: 'hover:text-[#1d9bf0]',
+  }
+  const label = count !== null ? fmtCount(count) : ''
 
   return (
     <div
-      className={`flex items-center gap-1 text-x-muted text-[13px] leading-4 px-2 py-2 rounded-full cursor-pointer transition-colors ${hoverColors[type] || ""}`}
+      className={`flex items-center gap-1 text-x-muted text-[13px] leading-4 px-2 py-2 rounded-full cursor-pointer transition-colors ${hoverColors[type] || ''}`}
     >
       {icon}
       {label && <span>{label}</span>}
     </div>
-  );
+  )
 }
 
 export default function App() {
-  const [data, setData] = useState<TweetData | null>(null);
-  const [showFullText, setShowFullText] = useState(false);
-  const [collapsedText, setCollapsedText] = useState("");
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [data, setData] = useState<TweetData | null>(null)
+  const [showFullText, setShowFullText] = useState(false)
+  const [collapsedText, setCollapsedText] = useState('')
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   useEffect(() => {
-    setShowFullText(false);
+    setShowFullText(false)
 
     // Check for tweet data from screenshot process
     if (window.__TWEET_DATA__) {
-      setData(window.__TWEET_DATA__);
+      // Handle both single tweet and scraper output
+      const tweetData = (window.__TWEET_DATA__ as any).main
+        ? (window.__TWEET_DATA__ as any).main
+        : window.__TWEET_DATA__
+      setData(tweetData as TweetData)
     } else {
       // Development fallback data with proper test cases
-      const testTweets = [
+      const testTweets: TweetData[] = [
         // Tweet 1: Should show 279 chars before "Show more"
         {
-          name: "sphinx",
-          handle: "@protosphinx",
+          name: 'sphinx',
+          handle: '@protosphinx',
           verified: true,
-          avatar: "https://pbs.twimg.com/profile_images/1234567890/avatar.jpg",
+          avatar: 'https://pbs.twimg.com/profile_images/1234567890/avatar.jpg',
           showSubscribe: true,
           showMore: true,
           text: "back in the 90s, Microsoft would interview competitors' candidates to strip-mine them for product and strategy info, then not hire them.\n\nthat cutthroat behavior sat alongside casual NDA skirting, aggressive poaching, and hardball sales. it was considered smart.\n\nUS culture only",
           media: [],
           quote: {
-            name: "International Cyber Digest",
-            handle: "@IntCyberDigest",
+            name: 'International Cyber Digest',
+            handle: '@IntCyberDigest',
             verified: true,
-            avatar: "https://pbs.twimg.com/profile_images/digest.jpg",
-            date: "Nov 28, 2025",
+            avatar: 'https://pbs.twimg.com/profile_images/digest.jpg',
+            date: 'Nov 28, 2025',
             text: "This is a story about a dev who got a job interview at xAI, where they stripped him of his knowledge about how he used the user X API to create two impressive projects, hence the job interview.\n\nAfter they got what they wanted, X sent a cease and desist, and told him he wasn't hired.",
-            media: ["https://pbs.twimg.com/media/cease-desist.jpg"],
+            media: ['https://pbs.twimg.com/media/cease-desist.jpg'],
           },
-          time: "4:36 AM",
-          fullDate: "Nov 29, 2025",
-          date: "Nov 29, 2025",
-          views: 774000,
-          replies: 46,
-          retweets: 555,
-          likes: 6100,
-          bookmarks: 0,
+          time: '4:36 AM',
+          date: 'Nov 29, 2025',
+          stats: {
+            replies: 46,
+            retweets: 555,
+            likes: 6100,
+            views: 774249,
+          },
         },
         // Tweet 2: Should show 276 chars before "Show more"
         {
-          name: "Chris Pisarski",
-          handle: "@chrispisarski",
+          name: 'Chris Pisarski',
+          handle: '@chrispisarski',
           verified: true,
-          avatar: "https://pbs.twimg.com/profile_images/chris.jpg",
+          avatar: 'https://pbs.twimg.com/profile_images/chris.jpg',
           showSubscribe: true,
           showMore: true,
           text: "Lovable might be dying. Web traffic has declined ~50% from 35.4M in June to 19.1M in September.\n\nThis trend can be seen across other big vibe coding tools such as Replit and Bolt.\n\nHere's why I think this is happening:\n\n1) The viral wave has passed: Spring/summer hype (esp",
-          media: ["https://pbs.twimg.com/media/lovable-chart.jpg"],
+          media: ['https://pbs.twimg.com/media/lovable-chart.jpg'],
           quote: null,
-          time: "10:17 PM",
-          fullDate: "Oct 7, 2025",
-          date: "Oct 7, 2025",
-          views: 8544,
-          replies: 4,
-          retweets: 3,
-          likes: 55,
-          bookmarks: 0,
+          time: '10:17 PM',
+          date: 'Oct 7, 2025',
+          stats: {
+            replies: 4,
+            retweets: 3,
+            likes: 55,
+            views: 8544,
+          },
         },
         // Tweet 3: Should show 279 chars (full tweet)
         {
-          name: "Julia Pintar",
-          handle: "@juliapintar",
+          name: 'Julia Pintar',
+          handle: '@juliapintar',
           verified: true,
-          avatar: "https://pbs.twimg.com/profile_images/julia.jpg",
+          avatar: 'https://pbs.twimg.com/profile_images/julia.jpg',
           showSubscribe: true,
+          showMore: false,
           text: "i am learning that you guys don't know how to talk to consumers\n\nfor your landing pages/app store PLS don't focus copy around your product\n\nfocus around the consumer -> how does it benefit them/make their life easier? use emotion-based copy\n\nattached a good + bad example below?",
           media: [
-            "https://pbs.twimg.com/media/app-examples.jpg",
-            "https://pbs.twimg.com/media/julia-selfie.jpg",
+            'https://pbs.twimg.com/media/app-examples.jpg',
+            'https://pbs.twimg.com/media/julia-selfie.jpg',
           ],
           quote: null,
-          time: "9:27 PM",
-          fullDate: "Nov 28, 2025",
-          date: "Nov 28, 2025",
-          views: 47677,
-          replies: 14,
-          retweets: 16,
-          likes: 367,
-          bookmarks: 0,
+          time: '9:27 PM',
+          date: 'Nov 28, 2025',
+          stats: {
+            replies: 14,
+            retweets: 16,
+            likes: 367,
+            views: 47677,
+          },
         },
-      ];
+      ]
 
       // Use first tweet by default, or cycle through them
-      setData(testTweets[0]);
+      setData(testTweets[0])
     }
 
-    if (window.__THEME__ === "light") {
-      document.documentElement.classList.add("light");
+    if (window.__THEME__ === 'light') {
+      document.documentElement.classList.add('light')
     }
 
     // Set up a listener for dynamically updating the tweet without a reload
     const handleUpdate = () => {
-      setData(window.__TWEET_DATA__ || ({} as TweetData));
-      if (window.__THEME__ === "light") {
-        document.documentElement.classList.add("light");
+      const tweetData = (window.__TWEET_DATA__ as any)?.main
+        ? (window.__TWEET_DATA__ as any).main
+        : window.__TWEET_DATA__
+      setData(tweetData as TweetData)
+      if (window.__THEME__ === 'light') {
+        document.documentElement.classList.add('light')
       } else {
-        document.documentElement.classList.remove("light");
+        document.documentElement.classList.remove('light')
       }
-    };
-
-    window.addEventListener("update-tweet-data", handleUpdate);
-    return () => window.removeEventListener("update-tweet-data", handleUpdate);
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!data) return;
-
-    if (data.showMore === true) {
-      setCollapsedText(data.text);
-      setIsCollapsed(true);
-      return;
     }
 
-    const result = clampTweetText(data.text, () => true);
-    setCollapsedText(result.truncated);
-    setIsCollapsed(result.isClamped);
-  }, [data]);
+    window.addEventListener('update-tweet-data', handleUpdate)
+    return () => window.removeEventListener('update-tweet-data', handleUpdate)
+  }, [])
 
-  if (!data) return null;
+  useLayoutEffect(() => {
+    if (!data?.text) return
 
-  const displayText = showFullText ? data.text : collapsedText || data.text;
+    if (data.showMore === true) {
+      setCollapsedText(data.text)
+      setIsCollapsed(true)
+      return
+    }
+
+    const result = clampTweetText(data.text || undefined, () => true)
+    setCollapsedText(result.truncated)
+    setIsCollapsed(result.isClamped)
+  }, [data])
+
+  if (!data) return null
+
+  const displayText =
+    (showFullText ? data.text : collapsedText || data.text) || ''
 
   return (
     <div
@@ -280,19 +293,25 @@ export default function App() {
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-1">
-        <img className="w-10 h-10 rounded-full shrink-0 object-cover" src={data.avatar} alt="" />
+        <img
+          className="w-10 h-10 rounded-full shrink-0 object-cover"
+          src={data.avatar || ''}
+          alt=""
+        />
         <div className="flex-1 min-w-0 flex items-start justify-between">
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex items-center gap-0.5 min-w-0 max-w-full">
               <span className="font-bold text-[15px] leading-5 text-x-text truncate">
-                {data.name}
+                {data.name || ''}
               </span>
               {data.verified && (
-                <span className="shrink-0 ml-0.5 inline-flex items-center">{SVG.verified}</span>
+                <span className="shrink-0 ml-0.5 inline-flex items-center">
+                  {SVG.verified}
+                </span>
               )}
             </div>
             <div className="text-x-muted text-[15px] leading-5 whitespace-nowrap">
-              {data.handle}
+              {data.handle || ''}
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0 ml-3">
@@ -316,7 +335,7 @@ export default function App() {
         {parseText(displayText)}
         {isCollapsed && !showFullText && (
           <>
-            {" "}
+            {' '}
             <button
               className="inline cursor-pointer border-none p-0 text-[17px] leading-6 text-x-link"
               onClick={() => setShowFullText(true)}
@@ -344,13 +363,15 @@ export default function App() {
                 />
               )}
               <span className="font-bold text-[13px] leading-4 text-x-text whitespace-nowrap">
-                {data.quote.name}
+                {data.quote.name || ''}
               </span>
               {data.quote.verified && (
-                <span className="shrink-0 inline-flex items-center">{SVG.verified}</span>
+                <span className="shrink-0 inline-flex items-center">
+                  {SVG.verified}
+                </span>
               )}
               <span className="text-x-muted text-[13px] leading-4 whitespace-nowrap">
-                {data.quote.handle}
+                {data.quote.handle || ''}
               </span>
               {data.quote.date && (
                 <span className="text-x-muted text-[13px] leading-4 whitespace-nowrap">
@@ -359,7 +380,7 @@ export default function App() {
               )}
             </div>
             <div className="text-[15px] leading-5 text-x-text whitespace-pre-wrap wrap-break-word">
-              {parseText(data.quote.text)}
+              {parseText(data.quote.text || '')}
             </div>
           </div>
           <MediaGrid media={data.quote.media} />
@@ -368,22 +389,36 @@ export default function App() {
 
       {/* Meta */}
       <div className="flex items-center gap-1 py-3 text-x-muted text-[15px] leading-5 flex-wrap">
-        <span>{data.time}</span>
+        <span>{data.time || ''}</span>
         <span className="mx-0.5">·</span>
-        <span>{data.fullDate}</span>
+        <span>{data.date || ''}</span>
         <span className="mx-0.5">·</span>
-        <span className="font-bold text-x-text">{fmtViews(data.views)}</span>
+        <span className="font-bold text-x-text">
+          {fmtViews(data.stats?.views)}
+        </span>
         <span> Views</span>
       </div>
 
       {/* Action Bar */}
       <div className="flex items-center justify-between border-t border-x-border py-1 -mx-1">
-        <ActionItem type="reply" icon={SVG.comment} count={data.replies} />
-        <ActionItem type="retweet" icon={SVG.retweet} count={data.retweets} />
-        <ActionItem type="like" icon={SVG.like} count={data.likes} />
-        <ActionItem type="bookmark" icon={SVG.bookmark} count={data.bookmarks} />
+        <ActionItem
+          type="reply"
+          icon={SVG.comment}
+          count={data.stats?.replies ?? 0}
+        />
+        <ActionItem
+          type="retweet"
+          icon={SVG.retweet}
+          count={data.stats?.retweets ?? 0}
+        />
+        <ActionItem
+          type="like"
+          icon={SVG.like}
+          count={data.stats?.likes ?? 0}
+        />
+        <ActionItem type="bookmark" icon={SVG.bookmark} count={null} />
         <ActionItem type="share" icon={SVG.share} count={null} />
       </div>
     </div>
-  );
+  )
 }

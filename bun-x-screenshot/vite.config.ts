@@ -6,9 +6,15 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 // https://vite.dev/config/
 export default defineConfig({
   lint: { options: { typeAware: true, typeCheck: true } },
-  plugins: [tailwindcss(), react(), viteSingleFile()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    viteSingleFile({
+      useRecommendedBuildConfig: false, // see https://github.com/richardtallent/vite-plugin-singlefile/pull/119
+    }),
+  ],
   build: {
-    outDir: 'dist-renderer',
+    outDir: 'dist',
     // viteSingleFile inlines all JS/CSS into index.html — required for data: URL loading
     assetsInlineLimit: 100_000_000,
   },
