@@ -7,8 +7,7 @@
 
 // Configuration
 const config = {
-  mainTweetSelector:
-    "//div[contains(@class,'main-tweet')]//div[contains(@class,'tweet-body')]",
+  mainTweetSelector: "//div[contains(@class,'main-tweet')]//div[contains(@class,'tweet-body')]",
   replySelector: "//div[@id='r']//div[contains(@class,'tweet-body')]",
   statLabels: ['replies', 'retweets', 'likes', 'views'],
 }
@@ -20,7 +19,7 @@ function getXPath(xpath: string, context: Node = document): Element[] {
     context,
     null,
     XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-    null,
+    null
   )
   const arr: Element[] = []
   for (let i = 0; i < result.snapshotLength; i++) {
@@ -33,28 +32,14 @@ function getXPath(xpath: string, context: Node = document): Element[] {
 }
 
 function getText(xpath: string, ctx: Node = document): string | null {
-  const el = document.evaluate(
-    xpath,
-    ctx,
-    null,
-    XPathResult.FIRST_ORDERED_NODE_TYPE,
-    null,
-  ).singleNodeValue as Element | null
+  const el = document.evaluate(xpath, ctx, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+    .singleNodeValue as Element | null
   return el ? el.textContent?.trim() || null : null
 }
 
-function getAttr(
-  xpath: string,
-  attr: string,
-  ctx: Node = document,
-): string | null {
-  const el = document.evaluate(
-    xpath,
-    ctx,
-    null,
-    XPathResult.FIRST_ORDERED_NODE_TYPE,
-    null,
-  ).singleNodeValue as Element | null
+function getAttr(xpath: string, attr: string, ctx: Node = document): string | null {
+  const el = document.evaluate(xpath, ctx, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+    .singleNodeValue as Element | null
   return el ? el.getAttribute(attr) : null
 }
 
@@ -66,7 +51,7 @@ function normalizeAvatar(url: string): string {
   return url
     .replace(
       /([?&])name=(small|medium|large|thumb|240x240|360x360|900x900)(?=(&|$))/g,
-      '$1name=orig',
+      '$1name=orig'
     )
     .replace(/([?&])format=webp(?=(&|$))/g, '$1format=jpg')
 }
@@ -77,7 +62,7 @@ function normalizeImage(url: string): string {
   return url
     .replace(
       /([?&])name=(small|medium|large|thumb|240x240|360x360|900x900)(?=(&|$))/g,
-      '$1name=orig',
+      '$1name=orig'
     )
     .replace(/([?&])format=webp(?=(&|$))/g, '$1format=jpg')
     .replace(/_bigger/g, '_orig')
@@ -123,29 +108,20 @@ function parseQuote(ctx: Element): {
   if (!quote) return null
 
   const get = (xp: string) =>
-    document.evaluate(
-      xp,
-      quote,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null,
-    ).singleNodeValue as Element | null
+    document.evaluate(xp, quote, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+      .singleNodeValue as Element | null
 
   return {
     name: get(".//a[contains(@class,'fullname')]")?.textContent?.trim() || null,
-    handle:
-      get(".//a[contains(@class,'username')]")?.textContent?.trim() || null,
+    handle: get(".//a[contains(@class,'username')]")?.textContent?.trim() || null,
     verified: !!get(".//div[contains(@class,'verified-icon')]"),
     avatar: normalizeAvatar(
-      get(".//img[contains(@class,'avatar')]")?.src || '',
+      (get(".//img[contains(@class,'avatar')]") as HTMLImageElement)?.src || ''
     ),
-    date:
-      get(".//span[contains(@class,'tweet-date')]//a")?.textContent?.trim() ||
-      null,
-    text:
-      get(".//div[contains(@class,'quote-text')]")?.textContent?.trim() || null,
+    date: get(".//span[contains(@class,'tweet-date')]//a")?.textContent?.trim() || null,
+    text: get(".//div[contains(@class,'quote-text')]")?.textContent?.trim() || null,
     media: getXPath(".//img[not(contains(@class,'avatar'))]", quote)
-      .map((img) => normalizeImage(img.src || ''))
+      .map((img) => normalizeImage((img as HTMLImageElement).src || ''))
       .filter(Boolean),
   }
 }
@@ -170,7 +146,7 @@ function parseTweet(ctx: Element): {
     ctx,
     null,
     XPathResult.FIRST_ORDERED_NODE_TYPE,
-    null,
+    null
   ).singleNodeValue as Element | null
 
   const titleAttr = dateEl?.getAttribute('title') || ''
@@ -187,19 +163,16 @@ function parseTweet(ctx: Element): {
   return {
     name: getText(".//a[contains(@class,'fullname')]", ctx),
     handle: getText(".//a[contains(@class,'username')]", ctx),
-    verified: !!getXPath(".//div[contains(@class,'verified-icon')]", ctx)
-      .length,
-    avatar: normalizeAvatar(
-      getAttr(".//img[contains(@class,'avatar')]", 'src', ctx) || '',
-    ),
+    verified: !!getXPath(".//div[contains(@class,'verified-icon')]", ctx).length,
+    avatar: normalizeAvatar(getAttr(".//img[contains(@class,'avatar')]", 'src', ctx) || ''),
     showSubscribe: true,
     showMore: false, // Not present in xcancel
     text: getText(".//div[contains(@class,'tweet-content')]", ctx),
     media: getXPath(
       ".//div[contains(@class,'attachments') and not(ancestor::*[contains(@class,'quote') or contains(@class,'quote-media-container')])]//img",
-      ctx,
+      ctx
     )
-      .map((img) => normalizeImage(img.src || ''))
+      .map((img) => normalizeImage((img as HTMLImageElement).src || ''))
       .filter(Boolean),
     quote: parseQuote(ctx),
     time,
@@ -244,14 +217,15 @@ try {
   const event = new CustomEvent('tweet-data-ready', { detail: scrapedData })
   window.dispatchEvent(event)
 
-  // Return the data for immediate use
-  return JSON.stringify(scrapedData)
+  // Assign to window for immediate use
+  // @ts-ignore
+  window.__TWEET_EXTRACTION_RESULT__ = JSON.stringify(scrapedData)
 } catch (error) {
   console.error('❌ Error:', error)
   // @ts-ignore
-  window.__TWEET_EXTRACTION_ERROR__ =
-    error instanceof Error ? error.message : String(error)
-  return JSON.stringify({
+  window.__TWEET_EXTRACTION_ERROR__ = error instanceof Error ? error.message : String(error)
+  // @ts-ignore
+  window.__TWEET_EXTRACTION_RESULT__ = JSON.stringify({
     error: error instanceof Error ? error.message : String(error),
   })
 }

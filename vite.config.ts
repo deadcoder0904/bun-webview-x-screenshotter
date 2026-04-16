@@ -6,11 +6,21 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 // https://vite.dev/config/
 export default defineConfig({
   lint: { options: { typeAware: true, typeCheck: true } },
+  fmt: {
+    singleQuote: true,
+    jsxSingleQuote: true,
+    trailingComma: 'es5',
+    semi: false,
+    tabWidth: 2,
+    printWidth: 100,
+    ignorePatterns: ['dist/**', 'node_modules/**', '**/*.css', 'bun.lock', 'bun.lockb'],
+  },
   plugins: [
     tailwindcss(),
     react(),
     viteSingleFile({
-      useRecommendedBuildConfig: false, // see https://github.com/richardtallent/vite-plugin-singlefile/pull/119
+      // see https://github.com/richardtallent/vite-plugin-singlefile/pull/119
+      useRecommendedBuildConfig: false,
     }),
   ],
   build: {

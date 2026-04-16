@@ -68,28 +68,14 @@ interface ScraperOutput {
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
-function buildRendererUrl(
-  html: string,
-  data: TweetData,
-  theme: string,
-): string {
+function buildRendererUrl(html: string, data: TweetData, theme: string): string {
   const bootstrap = `<script>window.__TWEET_DATA__=${JSON.stringify(data)};window.__THEME__=${JSON.stringify(theme)};</script>`
   return `data:text/html;charset=utf-8,${encodeURIComponent(html.replace('</head>', `${bootstrap}</head>`))}`
 }
 
-async function waitForSelector(
-  view: any,
-  selector: string,
-  tries = 30,
-  delayMs = 500,
-) {
+async function waitForSelector(view: any, selector: string, tries = 30, delayMs = 500) {
   for (let i = 0; i < tries; i++) {
-    if (
-      await view.evaluate(
-        `!!document.querySelector(${JSON.stringify(selector)})`,
-      )
-    )
-      return true
+    if (await view.evaluate(`!!document.querySelector(${JSON.stringify(selector)})`)) return true
     await Bun.sleep(delayMs)
   }
   return false
@@ -104,23 +90,15 @@ interface ScreenshotOptions {
   theme?: 'dark' | 'light'
 }
 
-async function takeScreenshots({
-  urls,
-  tweetsDir,
-  useXcancel,
-  theme = 'dark',
-}: ScreenshotOptions) {
+async function takeScreenshots({ urls, tweetsDir, useXcancel, theme = 'dark' }: ScreenshotOptions) {
   const start = Bun.nanoseconds()
   await mkdir(tweetsDir, { recursive: true })
 
-  const rendererHtml = await readFile(
-    path.join(import.meta.dir, 'dist', 'index.html'),
-    'utf8',
-  )
+  const rendererHtml = await readFile(path.join(import.meta.dir, 'dist', 'index.html'), 'utf8')
 
   // Load tweet extraction script (compiled and minified)
   const scraperScript = await Bun.file(
-    path.join(import.meta.dir, 'dist/extraction-script.js'),
+    path.join(import.meta.dir, 'dist/extraction-script.js')
   ).text()
 
   console.log('🚀 Initializing Bun.WebView...')
@@ -140,27 +118,18 @@ async function takeScreenshots({
       await view.resize(1000, 800)
       await view.navigate(targetUrl)
 
-      const selector = useXcancel
-        ? '.main-tweet'
-        : 'article[data-testid="tweet"], article'
+      const selector = useXcancel ? '.main-tweet' : 'article[data-testid="tweet"], article'
       if (!(await waitForSelector(view, selector))) {
-        console.warn(
-          '⚠️ Timeout waiting for tweet. Continuing with best-effort extraction...',
-        )
+        console.warn('⚠️ Timeout waiting for tweet. Continuing with best-effort extraction...')
       }
       await Bun.sleep(1200)
 
       // 2. Load and execute tweet-scraper
       console.log('🧾 Extracting tweet data...')
       const raw = JSON.parse(
-        String(
-          await view.evaluate(
-            `(() => { ${scraperScript}; return scrapeTweets(); })()`,
-          ),
-        ),
+        String(await view.evaluate(`(() => { ${scraperScript}; return scrapeTweets(); })()`))
       ) as ScraperOutput & { error?: string }
-      if (raw.error)
-        throw new Error(`Extraction failed for ${url}: ${raw.error}`)
+      if (raw.error) throw new Error(`Extraction failed for ${url}: ${raw.error}`)
       if (!raw.main) throw new Error(`No main tweet found for ${url}`)
       const tweetData = raw.main
 
@@ -174,9 +143,10 @@ async function takeScreenshots({
       }
 
       // 4. Measure and resize to exact dimensions
-      const dims = JSON.parse(
-        String(await view.evaluate(MEASURE_TWEET_SCRIPT)),
-      ) as { w: number; h: number }
+      const dims = JSON.parse(String(await view.evaluate(MEASURE_TWEET_SCRIPT))) as {
+        w: number
+        h: number
+      }
       console.log(`📏 Resizing to ${dims.w}×${dims.h}...`)
       await view.resize(dims.w, dims.h)
       await Bun.sleep(150)
@@ -217,9 +187,7 @@ if (import.meta.main) {
       tweetsDir,
       useXcancel: true,
     })
-    console.log(
-      `🎉 Done! ${result.count} screenshots in ${(result.timeMs / 1000).toFixed(2)}s`,
-    )
+    console.log(`🎉 Done! ${result.count} screenshots in ${(result.timeMs / 1000).toFixed(2)}s`)
   } catch (error) {
     console.error('❌ Fatal:', error)
     process.exit(1)
@@ -227,10 +195,4 @@ if (import.meta.main) {
 }
 
 export { takeScreenshots }
-export type {
-  ScreenshotOptions,
-  TweetData,
-  QuoteData,
-  TweetStats,
-  ScraperOutput,
-}
+export type { ScreenshotOptions, TweetData, QuoteData, TweetStats, ScraperOutput }
